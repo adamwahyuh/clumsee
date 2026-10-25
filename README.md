@@ -1,73 +1,74 @@
 <p align="center">
-  <img src="resources/icon.svg" width="128" alt="Logo Clumsee" />
+  <img src="resources/icon.svg" width="128" alt="Clumsee logo" />
 </p>
 
 <h1 align="center">Clumsee</h1>
 
 <p align="center">
-  Pilih area layar, lalu tanya AI, salin teksnya, scan QR, atau cari di Google.<br />
-  Aplikasi desktop untuk macOS, Windows, dan Linux.
+  Select an area of your screen, then ask AI about it, copy its text, scan a QR code, or search Google.<br />
+  A desktop app for macOS, Windows, and Linux.
 </p>
 
 ---
 
-## Fitur
+## Features
 
-- **Capture area layar dengan hotkey.** Tekan `Cmd/Ctrl + Shift + X`, layar menyala dengan glow warna tema, lalu seret untuk memilih area.
-- **Tanya AI tentang area itu.** Mendukung Gemini, Claude, dan OpenAI. Jawaban muncul di sidebar melayang di kanan layar, bisa ditanya lanjutan, dan ada *mode pintar* untuk model yang lebih kuat.
-- **Blok dan salin teks dari layar.** Teks di area pilihan dibaca dengan OCR lokal (Tesseract), lalu bisa diblok dengan mouse dan dicopy pakai `Cmd/Ctrl + C`. Prosesnya cepat, offline, dan tanpa token.
-- **Cari di Google.** Teks yang diblok, atau semua teks di area, langsung dibuka sebagai pencarian Google.
-- **Scan QR code dan barcode.** Kalau isinya link, klik untuk membuka di browser. Kalau bukan link, isinya bisa dicopy.
-- **Mode Tanpa AI.** Pakai Clumsee hanya untuk OCR, scan QR/barcode, dan pencarian Google. Tidak perlu API key.
-- **Tampilan rumus dan kode.** Rumus LaTeX ditampilkan rapi dengan KaTeX, dan blok kode diberi warna sintaks plus tombol Copy.
-- **Warna tema per provider.** Defaultnya Gemini biru, Claude oranye, dan OpenAI hijau. Bisa diganti di Settings.
-- **Riwayat dan pemakaian.** Percakapan tersimpan dan bisa dicari. Ada catatan token dan biaya, serta batas harian token atau USD.
+- **Capture a screen area with a hotkey.** Press `Cmd/Ctrl + Shift + X`, the screen lights up with a glow in your theme color, then drag to select an area.
+- **Ask AI about that area.** Supports Gemini, Claude, and OpenAI. The answer appears in a floating sidebar on the right of the screen, you can ask follow-up questions, and *smart mode* switches to a stronger model.
+- **Select and copy text from the screen.** Text in the selected area is read with local OCR (Tesseract), so you can highlight it with the mouse and copy it with `Cmd/Ctrl + C`. It is fast, offline, and uses no tokens.
+- **Search Google.** The highlighted text, or all text in the area, opens straight away as a Google search.
+- **Scan QR codes and barcodes.** If it contains a link, click to open it in your browser. Otherwise, you can copy its content.
+- **No AI mode.** Use Clumsee only for OCR, QR/barcode scanning, and Google search. No API key needed.
+- **Math and code rendering.** LaTeX formulas are rendered neatly with KaTeX, and code blocks get syntax highlighting plus a Copy button.
+- **Theme color per provider.** By default Gemini is blue, Claude is orange, and OpenAI is green. You can change them in Settings.
+- **English or Indonesian.** Switch the interface and the answer language in Settings.
+- **History and usage.** Conversations are saved and searchable. Token and cost usage is tracked, with optional daily limits in tokens or USD.
 
-## Privasi
+## Privacy
 
-- Gambar **hanya dikirim ke AI setelah kamu menekan Send**, dan hanya ke provider yang kamu pilih.
-- OCR, scan QR, dan pencarian Google berjalan **di komputer kamu**. Gambar tidak dikirim ke mana pun.
-- API key disimpan terenkripsi lewat keychain sistem (Keychain, DPAPI, atau libsecret).
-- Jendela capture dan sidebar disembunyikan dari screenshot dan screen share.
-- Thumbnail di riwayat bisa dimatikan di Settings.
+- Images are **only sent to AI after you press Send**, and only to the provider you chose.
+- OCR, QR scanning, and Google search run **on your computer**. Images are not sent anywhere.
+- API keys are stored encrypted with the system keychain (Keychain, DPAPI, or libsecret).
+- The capture window and sidebar are hidden from screenshots and screen sharing.
+- History thumbnails can be turned off in Settings.
 
 ## Download
 
-Unduh versi terbaru di halaman **[Releases](https://github.com/adamwahyuh/clumsee/releases/latest)**.
+Get the latest version from the **[Releases](https://github.com/adamwahyuh/clumsee/releases/latest)** page.
 
-| Sistem | File |
+| System | File |
 | --- | --- |
-| macOS (Apple Silicon) | `Clumsee_<versi>_arm64.dmg` |
-| macOS (Intel) | `Clumsee_<versi>_x64.dmg` |
-| Windows | `Clumsee_<versi>.exe` |
-| Linux | `Clumsee_<versi>.AppImage` atau `Clumsee_<versi>.deb` |
+| macOS (Apple Silicon) | `Clumsee_<version>_arm64.dmg` |
+| macOS (Intel) | `Clumsee_<version>_x64.dmg` |
+| Windows | `Clumsee_<version>.exe` |
+| Linux | `Clumsee_<version>.AppImage` or `Clumsee_<version>.deb` |
 
-> **Catatan:** Clumsee belum ditandatangani secara digital.
-> Di macOS, buka pertama kali dengan *klik kanan → Open*. Di Windows, pilih *More info → Run anyway* jika SmartScreen muncul.
-> Untuk AppImage, jadikan file bisa dijalankan dulu (`chmod +x`).
+> **Note:** Clumsee is not code-signed yet.
+> On macOS, open it the first time with *right-click → Open*. On Windows, choose *More info → Run anyway* if SmartScreen appears.
+> For the AppImage, make the file executable first (`chmod +x`).
 
-## Memulai
+## Getting started
 
-1. Install dan buka Clumsee. Langkah setup akan muncul: pilih provider AI (atau *Tanpa AI*), isi API key, lalu atur hotkey.
-2. Clumsee berjalan di tray atau menu bar. Tekan `Cmd/Ctrl + Shift + X` kapan saja untuk mulai capture.
-3. Di macOS, berikan izin **Screen Recording** lewat *System Settings → Privacy & Security → Screen Recording*, lalu restart Clumsee.
+1. Install and open Clumsee. A setup guide appears: choose an AI provider (or *No AI*), enter your API key, then set your hotkey.
+2. Clumsee runs in the tray or menu bar. Press `Cmd/Ctrl + Shift + X` any time to start a capture.
+3. On macOS, grant **Screen Recording** permission in *System Settings → Privacy & Security → Screen Recording*, then restart Clumsee.
 
-### API key
+### API keys
 
-| Provider | Ambil key di |
+| Provider | Get a key at |
 | --- | --- |
 | Gemini | https://aistudio.google.com/apikey |
 | Claude | https://platform.claude.com/settings/keys |
 | OpenAI | https://platform.openai.com/api-keys |
 
-## Dibangun dengan
+## Built with
 
 Electron · React · TypeScript · Tailwind CSS · electron-vite · Tesseract.js · jsQR · KaTeX · highlight.js
 
-## Pembuat
+## Author
 
 Adam Hariyadi ([adamdesign19@gmail.com](mailto:adamdesign19@gmail.com))
 
-## Lisensi
+## License
 
-Clumsee adalah perangkat lunak open source di bawah [Lisensi MIT](LICENSE).
+Clumsee is open source software under the [MIT License](LICENSE).
