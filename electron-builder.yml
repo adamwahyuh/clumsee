@@ -3,6 +3,7 @@ productName: Clumsee
 directories:
   buildResources: resources # icon.png here becomes .icns / .ico / Linux icons
   output: dist
+artifactName: ${productName}_${version}.${ext}
 files:
   - out/**
   - package.json
@@ -24,6 +25,7 @@ mac:
   target:
     - target: dmg
       arch: [arm64, x64]
+  artifactName: ${productName}_${version}_${arch}.${ext} # two dmgs, arch keeps them apart
   category: public.app-category.productivity
   # Unsigned until there is an Apple Developer account (open decision in the plan).
   # Unsigned builds: right-click → Open the first time, and grant Screen Recording again after every new build.

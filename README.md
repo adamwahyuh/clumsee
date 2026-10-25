@@ -31,20 +31,26 @@
 - Jendela capture dan sidebar disembunyikan dari screenshot dan screen share.
 - Thumbnail di riwayat bisa dimatikan di Settings.
 
-## Instalasi (development)
+## Download
 
-Kebutuhan: **Node.js 23.6+**, karena test memakai TypeScript langsung lewat `node --test`.
+Unduh versi terbaru di halaman **[Releases](https://github.com/adamwahyuh/clumsee/releases/latest)**.
 
-```bash
-npm install
-npm run dev
-```
+| Sistem | File |
+| --- | --- |
+| macOS (Apple Silicon) | `Clumsee_<versi>_arm64.dmg` |
+| macOS (Intel) | `Clumsee_<versi>_x64.dmg` |
+| Windows | `Clumsee_<versi>.exe` |
+| Linux | `Clumsee_<versi>.AppImage` atau `Clumsee_<versi>.deb` |
 
-Saat pertama dibuka, Clumsee menampilkan langkah setup: pilih provider (atau *Tanpa AI*), isi API key, lalu atur hotkey. Setelah itu app berjalan di tray atau menu bar.
+> **Catatan:** Clumsee belum ditandatangani secara digital.
+> Di macOS, buka pertama kali dengan *klik kanan → Open*. Di Windows, pilih *More info → Run anyway* jika SmartScreen muncul.
+> Untuk AppImage, jadikan file bisa dijalankan dulu (`chmod +x`).
 
-### Izin macOS
+## Memulai
 
-macOS membutuhkan izin **Screen Recording**: buka *System Settings → Privacy & Security → Screen Recording*, aktifkan Clumsee, lalu restart app.
+1. Install dan buka Clumsee. Langkah setup akan muncul: pilih provider AI (atau *Tanpa AI*), isi API key, lalu atur hotkey.
+2. Clumsee berjalan di tray atau menu bar. Tekan `Cmd/Ctrl + Shift + X` kapan saja untuk mulai capture.
+3. Di macOS, berikan izin **Screen Recording** lewat *System Settings → Privacy & Security → Screen Recording*, lalu restart Clumsee.
 
 ### API key
 
@@ -54,46 +60,14 @@ macOS membutuhkan izin **Screen Recording**: buka *System Settings → Privacy &
 | Claude | https://platform.claude.com/settings/keys |
 | OpenAI | https://platform.openai.com/api-keys |
 
-## Build
-
-```bash
-npm run dist:mac     # .dmg (arm64 + x64)
-npm run dist:win     # installer NSIS (x64)
-npm run dist:linux   # AppImage + .deb (x64)
-```
-
-Hasil build ada di folder `dist/`. Build macOS belum ditandatangani, jadi buka pertama kali dengan *klik kanan → Open*.
-
-## Script lain
-
-```bash
-npm run typecheck   # cek tipe TypeScript
-npm test            # unit test
-```
-
-## Struktur project
-
-```
-src/
-  shared.ts              tipe & konstanta untuk main, preload, dan renderer
-  main/                  proses utama Electron
-    index.ts             window, hotkey, IPC, alur capture → sidebar
-    capture.ts           ambil screenshot & crop
-    ocr.ts               OCR lokal (Tesseract)
-    providers/           Gemini, Claude, OpenAI
-    store/               settings, API key terenkripsi, riwayat (SQLite)
-  preload/               API aman untuk renderer
-  renderer/
-    overlay/             layar capture: seleksi, OCR, QR, lalu jadi sidebar
-    panel/               komponen sidebar jawaban (markdown, rumus, kode)
-    dashboard/           riwayat, pemakaian, settings, onboarding
-resources/               logo (icon.svg / icon.png)
-```
-
 ## Dibangun dengan
 
 Electron · React · TypeScript · Tailwind CSS · electron-vite · Tesseract.js · jsQR · KaTeX · highlight.js
 
 ## Pembuat
 
-Adam ([adamwahyu875@gmail.com](mailto:adamwahyu875@gmail.com))
+Adam Hariyadi ([adamdesign19@gmail.com](mailto:adamdesign19@gmail.com))
+
+## Lisensi
+
+Clumsee adalah perangkat lunak open source di bawah [Lisensi MIT](LICENSE).
