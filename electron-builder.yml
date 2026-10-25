@@ -1,0 +1,47 @@
+appId: com.clumsee.app
+productName: Clumsee
+directories:
+  buildResources: resources # icon.png here becomes .icns / .ico / Linux icons
+  output: dist
+files:
+  - out/**
+  - package.json
+  - resources/icon.png # tray/window icon on Windows/Linux, loaded at runtime
+  # Tesseract in Node loads the non-"-lstm" engines (one picked by CPU support; its getCore gets a boolean, not the OEM),
+  # and only the best_int English model is used. *.wasm.js are browser builds.
+  - "!node_modules/tesseract.js-core/*.wasm.js"
+  - "!node_modules/tesseract.js-core/*-lstm.{js,wasm}"
+  - "!node_modules/@tesseract.js-data/eng/4.0.0/**"
+# The UI is Indonesian/English; skip Chromium's other ~218 interface languages.
+electronLanguages: [en, id]
+asarUnpack:
+  - resources/**
+  # OCR runs in a worker thread that loads its script and wasm from disk.
+  - node_modules/tesseract.js/**
+  - node_modules/tesseract.js-core/**
+
+mac:
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+  category: public.app-category.productivity
+  # Unsigned until there is an Apple Developer account (open decision in the plan).
+  # Unsigned builds: right-click → Open the first time, and grant Screen Recording again after every new build.
+  identity: null
+
+win:
+  target:
+    - target: nsis
+      arch: [x64] # without this it builds for the build machine's arch (arm64 on Apple Silicon)
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+
+linux:
+  target:
+    - target: AppImage
+      arch: [x64]
+    - target: deb
+      arch: [x64]
+  category: Utility
+  synopsis: Pilih area layar, tanya AI
