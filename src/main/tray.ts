@@ -2,7 +2,7 @@ import { Menu, nativeImage, Tray } from 'electron'
 import appIcon from '../../resources/icon.png?asset'
 import { t } from '../i18n'
 
-type Handlers = { capture: () => void; history: () => void; dashboard: () => void; togglePause: () => void; quit: () => void }
+type Handlers = { capture: () => void; history: () => void; dashboard: () => void; about: () => void; togglePause: () => void; quit: () => void }
 
 // macOS menu bar icon: corner brackets (a selection box) drawn in code. 32px @2x = 16pt.
 function icon(): Electron.NativeImage {
@@ -34,6 +34,7 @@ export function createTray(h: Handlers, isPaused: () => boolean): { tray: Tray; 
         { type: 'separator' },
         { label: t('Riwayat'), click: h.history },
         { label: t('Settings'), click: h.dashboard },
+        { label: t('Tentang Clumsee'), click: h.about },
         { type: 'separator' },
         { label: t('Quit'), click: h.quit }
       ])

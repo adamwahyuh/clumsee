@@ -22,7 +22,7 @@ const PANEL_WIDTH = 420
 const SCREEN_SETTINGS_URL = 'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture'
 const isMac = process.platform === 'darwin'
 
-type Tab = 'history' | 'usage' | 'settings'
+type Tab = 'history' | 'usage' | 'settings' | 'about'
 type Conversation = {
   image: string
   thumb: string | null
@@ -366,6 +366,7 @@ if (!app.requestSingleInstanceLock()) {
         capture: () => void startCapture(),
         history: () => showDashboard('history'),
         dashboard: () => showDashboard('settings'),
+        about: () => showDashboard('about'),
         togglePause,
         quit: () => app.quit()
       },

@@ -75,6 +75,10 @@ const en = {
   'Riwayat': 'History',
   'Pemakaian': 'Usage',
   'Settings': 'Settings',
+  'Tentang': 'About',
+  'Pilih area layar dan tanya AI vision.': 'Select a screen area and ask vision AI.',
+  'Versi {0}': 'Version {0}',
+  'Lisensi MIT': 'MIT License',
   // panel
   'Tutup panel': 'Close panel',
   'Tutup (Esc)': 'Close (Esc)',
@@ -113,6 +117,7 @@ const en = {
   'Capture sekarang': 'Capture now',
   'Pause hotkey': 'Pause hotkey',
   'Quit': 'Quit',
+  'Tentang Clumsee': 'About Clumsee',
   'Batas token harian tercapai ({0} / {1}). Ubah di Settings.': 'Daily token limit reached ({0} / {1}). Change it in Settings.',
   'Batas biaya harian tercapai (${0} / ${1}). Ubah di Settings.': 'Daily cost limit reached (${0} / ${1}). Change it in Settings.',
   'Izin Screen Recording dibutuhkan': 'Screen Recording permission required',

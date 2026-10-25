@@ -5,6 +5,9 @@ import '../styles.css'
 import '../panel/markdown.css'
 import { Answer } from '../panel/Answer'
 import { setLang, t, type Key } from '../../i18n'
+// CI overwrites VERSION with the pushed tag before building; locally it stays as committed.
+import version from '../../../VERSION?raw'
+import logo from '../../../resources/icon.svg'
 
 type Save = (patch: Partial<Settings>) => Promise<string | null>
 type FieldProps = { view: SettingsView; save: Save }
@@ -466,7 +469,22 @@ function UsageTab({ view, save }: FieldProps) {
   )
 }
 
-const TABS: Record<'history' | 'usage' | 'settings', Key> = { history: 'Riwayat', usage: 'Pemakaian', settings: 'Settings' }
+function AboutTab() {
+  return (
+    <div className="space-y-2">
+      <img src={logo} alt="" className="h-20 w-20" />
+      <h2 className="text-lg font-semibold">Clumsee</h2>
+      <p>{t('Pilih area layar dan tanya AI vision.')}</p>
+      <p className="text-xs text-neutral-500">{t('Versi {0}', version.trim())}</p>
+      <p className="text-xs text-neutral-500">
+        © {new Date().getFullYear()} Adam Hariyadi ·{' '}
+        <a className="text-(--accent) underline" href="https://github.com/adamwahyuh/clumsee/blob/main/LICENSE" target="_blank" rel="noreferrer">{t('Lisensi MIT')}</a>
+      </p>
+    </div>
+  )
+}
+
+const TABS: Record<'history' | 'usage' | 'settings' | 'about', Key> = { history: 'Riwayat', usage: 'Pemakaian', settings: 'Settings', about: 'Tentang' }
 type Tab = keyof typeof TABS
 const toTab = (s: string): Tab => (s in TABS ? (s as Tab) : 'history')
 
@@ -512,6 +530,7 @@ function App() {
             {tab === 'history' && <HistoryTab />}
             {tab === 'usage' && <UsageTab view={view} save={save} />}
             {tab === 'settings' && <SettingsPage view={view} save={save} />}
+            {tab === 'about' && <AboutTab />}
           </>
         )}
       </div>
