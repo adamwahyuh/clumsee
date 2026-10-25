@@ -4,6 +4,7 @@ import { PROVIDERS, type HistoryItem, type Preset, type Provider, type Settings,
 import '../styles.css'
 import '../panel/markdown.css'
 import { Answer } from '../panel/Answer'
+import { setLang, t, type Key } from '../../i18n'
 
 type Save = (patch: Partial<Settings>) => Promise<string | null>
 type FieldProps = { view: SettingsView; save: Save }
@@ -28,7 +29,7 @@ const choiceOff = 'border-neutral-300 dark:border-neutral-700'
 
 function ProviderField({ view, save }: FieldProps) {
   return (
-    <Field label="Provider AI" hint={!view.aiEnabled && 'Tanpa AI: capture hanya untuk scan QR/barcode, salin teks, dan cari di Google. Tidak perlu API key.'}>
+    <Field label={t('Provider AI')} hint={!view.aiEnabled && t('Tanpa AI: capture hanya untuk scan QR/barcode, salin teks, dan cari di Google. Tidak perlu API key.')}>
       <div role="radiogroup" className="flex flex-wrap gap-2">
         {(Object.keys(PROVIDERS) as Provider[]).map((p) => (
           <button
@@ -42,7 +43,7 @@ function ProviderField({ view, save }: FieldProps) {
           </button>
         ))}
         <button role="radio" aria-checked={!view.aiEnabled} onClick={() => save({ aiEnabled: false })} className={`${choice} ${!view.aiEnabled ? choiceOn : choiceOff}`}>
-          Tanpa AI
+          {t('Tanpa AI')}
         </button>
       </div>
     </Field>
@@ -52,17 +53,17 @@ function ProviderField({ view, save }: FieldProps) {
 function AccentField({ view, save }: FieldProps) {
   const p = view.provider
   return (
-    <Field label="Warna aksen" hint={`Dipakai untuk glow capture, panel jawaban, dan dashboard saat memakai ${view.aiEnabled ? PROVIDERS[p].label : 'mode Tanpa AI'}.`}>
+    <Field label={t('Warna aksen')} hint={t('Dipakai untuk glow capture, panel jawaban, dan dashboard saat memakai {0}.', view.aiEnabled ? PROVIDERS[p].label : t('mode Tanpa AI'))}>
       <div className="flex items-center gap-2">
         <input
           type="color"
-          aria-label="Warna aksen"
+          aria-label={t('Warna aksen')}
           className="h-9 w-14 cursor-pointer rounded border border-neutral-300 bg-transparent dark:border-neutral-700"
           value={view.accents[p]}
           onChange={(e) => save({ accents: { ...view.accents, [p]: e.target.value } })}
         />
         <button className={secondary} disabled={view.accents[p] === PROVIDERS[p].color} onClick={() => save({ accents: { ...view.accents, [p]: PROVIDERS[p].color } })}>
-          Reset default
+          {t('Reset default')}
         </button>
       </div>
     </Field>
@@ -83,32 +84,32 @@ function KeyField({ view, onTested }: { view: SettingsView; onTested: (models: s
     setTesting(false)
     if (r.ok) {
       setValue('')
-      setStatus({ ok: true, text: 'Terhubung ✓' })
+      setStatus({ ok: true, text: t('Terhubung ✓') })
       onTested(r.models)
     } else setStatus({ ok: false, text: r.error })
   }
 
   return (
     <Field
-      label={`API key ${PROVIDERS[view.provider].label}`}
-      hint={<a className="text-(--accent) underline" href={PROVIDERS[view.provider].keyUrl} target="_blank" rel="noreferrer">Ambil API key</a>}
+      label={t('API key {0}', PROVIDERS[view.provider].label)}
+      hint={<a className="text-(--accent) underline" href={PROVIDERS[view.provider].keyUrl} target="_blank" rel="noreferrer">{t('Ambil API key')}</a>}
     >
       <div className="flex gap-2">
         <input
           type="password"
           aria-label="API key"
           className={input}
-          placeholder={current ? `Tersimpan: ${current}` : 'Paste API key'}
+          placeholder={current ? t('Tersimpan: {0}', current) : t('Paste API key')}
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
         <button className={button} disabled={testing || (!value && !current)} onClick={test}>
-          {testing ? 'Menguji…' : 'Test koneksi'}
+          {testing ? t('Menguji…') : t('Test koneksi')}
         </button>
       </div>
       {status && <p role="status" className={status.ok ? 'text-green-600' : 'text-red-600'}>{status.text}</p>}
       {view.insecureKeys && (
-        <p className="text-amber-600">Keyring sistem tidak ditemukan: key disimpan tanpa enkripsi. Pasang libsecret atau KWallet.</p>
+        <p className="text-amber-600">{t('Keyring sistem tidak ditemukan: key disimpan tanpa enkripsi. Pasang libsecret atau KWallet.')}</p>
       )}
     </Field>
   )
@@ -119,14 +120,14 @@ function ModelField({ view, save, models, smart = false }: FieldProps & { models
   const field = smart ? 'smartModels' : 'models'
   return (
     <Field
-      label={smart ? 'Model mode pintar' : 'Model default'}
+      label={smart ? t('Model mode pintar') : t('Model default')}
       hint={smart
-        ? `Dipakai saat "Mode pintar" dicentang, misal ${PROVIDERS[p].smartModel}.`
-        : `Model murah disarankan, misal ${PROVIDERS[p].defaultModel}. Daftar muncul setelah Test koneksi.`}
+        ? t('Dipakai saat "Mode pintar" dicentang, misal {0}.', PROVIDERS[p].smartModel)
+        : t('Model murah disarankan, misal {0}. Daftar muncul setelah Test koneksi.', PROVIDERS[p].defaultModel)}
     >
       <input
         key={p}
-        aria-label={smart ? 'Model mode pintar' : 'Model default'}
+        aria-label={smart ? t('Model mode pintar') : t('Model default')}
         list="models"
         className={input}
         defaultValue={view[field][p]}
@@ -167,9 +168,9 @@ function HotkeyField({ view, save }: FieldProps) {
   }
 
   return (
-    <Field label="Hotkey capture" hint="Hindari Cmd+Shift+3/4/5 di macOS (screenshot bawaan).">
+    <Field label={t('Hotkey capture')} hint={t('Hindari Cmd+Shift+3/4/5 di macOS (screenshot bawaan).')}>
       <button className={`${secondary} font-mono`} onClick={() => { setError(null); setRecording(true) }} onKeyDown={onKeyDown} onBlur={() => setRecording(false)}>
-        {recording ? 'Tekan kombinasi tombol… (Esc batal)' : view.hotkey}
+        {recording ? t('Tekan kombinasi tombol… (Esc batal)') : view.hotkey}
       </button>
       {error && <p role="alert" className="text-red-600">{error}</p>}
     </Field>
@@ -178,18 +179,21 @@ function HotkeyField({ view, save }: FieldProps) {
 
 function LanguageField({ view, save }: FieldProps) {
   return (
-    <Field label="Bahasa jawaban">
-      <select aria-label="Bahasa jawaban" className={input} value={view.language} onChange={(e) => save({ language: e.target.value as Settings['language'] })}>
-        <option value="id">Indonesia</option>
-        <option value="en">Inggris</option>
-      </select>
+    <Field label={t('Bahasa')} hint={t('Untuk tampilan app dan jawaban AI.')}>
+      <div role="radiogroup" aria-label={t('Bahasa')} className="flex gap-2">
+        {([['id', 'Indonesia'], ['en', 'English']] as const).map(([l, name]) => (
+          <button key={l} role="radio" aria-checked={view.language === l} onClick={() => save({ language: l })} className={`${choice} ${view.language === l ? choiceOn : choiceOff}`}>
+            {name}
+          </button>
+        ))}
+      </div>
     </Field>
   )
 }
 
 function SystemPromptField({ view, save }: FieldProps) {
   return (
-    <Field label="System prompt (opsional)" hint="Instruksi tambahan untuk setiap pertanyaan.">
+    <Field label={t('System prompt (opsional)')} hint={t('Instruksi tambahan untuk setiap pertanyaan.')}>
       <textarea aria-label="System prompt" rows={3} className={input} defaultValue={view.systemPrompt} onBlur={(e) => save({ systemPrompt: e.target.value })} />
     </Field>
   )
@@ -204,12 +208,12 @@ function PermissionStep() {
     return () => window.removeEventListener('focus', check)
   }, [])
   return (
-    <Field label="Izin Screen Recording (macOS)">
-      <p>{status === 'granted' ? 'Izin sudah diberikan ✓' : 'Aktifkan Clumsee di System Settings → Privacy & Security → Screen Recording, lalu restart app.'}</p>
+    <Field label={t('Izin Screen Recording (macOS)')}>
+      <p>{status === 'granted' ? t('Izin sudah diberikan ✓') : t('Aktifkan Clumsee di System Settings → Privacy & Security → Screen Recording, lalu restart app.')}</p>
       {status !== 'granted' && (
         <div className="flex gap-2">
-          <button className={button} onClick={() => window.api.requestPermission()}>Buka System Settings</button>
-          <button className={secondary} onClick={() => window.api.relaunch()}>Restart app</button>
+          <button className={button} onClick={() => window.api.requestPermission()}>{t('Buka System Settings')}</button>
+          <button className={secondary} onClick={() => window.api.relaunch()}>{t('Restart app')}</button>
         </div>
       )}
     </Field>
@@ -224,10 +228,13 @@ function Onboarding({ view, save }: FieldProps) {
   const steps: { body: ReactNode; canNext?: boolean }[] = [
     {
       body: (
-        <Field label="Selamat datang di Clumsee">
-          <p>Pilih area layar dengan hotkey, tanya, dan dapat jawaban AI di panel kanan.</p>
-          <p>Capture hanya aktif selama app berjalan. Gambar hanya dikirim setelah kamu menekan Send.</p>
-        </Field>
+        <div className="space-y-6">
+          <Field label={t('Selamat datang di Clumsee')}>
+            <p>{t('Pilih area layar dengan hotkey, tanya, dan dapat jawaban AI di panel kanan.')}</p>
+            <p>{t('Capture hanya aktif selama app berjalan. Gambar hanya dikirim setelah kamu menekan Send.')}</p>
+          </Field>
+          <LanguageField view={view} save={save} />
+        </div>
       )
     },
     { body: <ProviderField view={view} save={save} /> },
@@ -246,8 +253,8 @@ function Onboarding({ view, save }: FieldProps) {
     ...(isMac ? [{ body: <PermissionStep /> }] : []),
     {
       body: (
-        <Field label="Selesai">
-          <p>Clumsee berjalan di tray/menu bar. Tekan <kbd className="font-mono">{view.hotkey}</kbd> untuk capture.</p>
+        <Field label={t('Selesai')}>
+          <p>{t('Clumsee berjalan di tray/menu bar. Tekan')} <kbd className="font-mono">{view.hotkey}</kbd> {t('untuk capture.')}</p>
         </Field>
       )
     }
@@ -256,16 +263,16 @@ function Onboarding({ view, save }: FieldProps) {
 
   return (
     <div className="space-y-6">
-      <p className="text-xs text-neutral-500">Langkah {step + 1} dari {steps.length}</p>
+      <p className="text-xs text-neutral-500">{t('Langkah {0} dari {1}', step + 1, steps.length)}</p>
       {steps[step].body}
       <div className="flex justify-between">
-        <button className={secondary} disabled={step === 0} onClick={() => setStep(step - 1)}>Kembali</button>
+        <button className={secondary} disabled={step === 0} onClick={() => setStep(step - 1)}>{t('Kembali')}</button>
         <button
           className={button}
           disabled={steps[step].canNext === false}
           onClick={() => (last ? save({ onboarded: true }) : setStep(step + 1))}
         >
-          {last ? 'Mulai pakai' : 'Lanjut'}
+          {last ? t('Mulai pakai') : t('Lanjut')}
         </button>
       </div>
     </div>
@@ -277,6 +284,7 @@ function SettingsPage({ view, save }: FieldProps) {
   useEffect(() => setModels([]), [view.provider])
   return (
     <div className="space-y-6">
+      <LanguageField view={view} save={save} />
       <ProviderField view={view} save={save} />
       <AccentField view={view} save={save} />
       {view.aiEnabled && (
@@ -289,16 +297,15 @@ function SettingsPage({ view, save }: FieldProps) {
       <HotkeyField view={view} save={save} />
       {view.aiEnabled && (
         <>
-          <LanguageField view={view} save={save} />
           <SystemPromptField view={view} save={save} />
           <PresetsField view={view} save={save} />
-          <NumberField view={view} save={save} field="maxTokens" label="Max tokens jawaban" hint="Batas panjang jawaban. Default 800." />
+          <NumberField view={view} save={save} field="maxTokens" label={t('Max tokens jawaban')} hint={t('Batas panjang jawaban. Default 800.')} />
         </>
       )}
-      <Field label="Privasi riwayat">
+      <Field label={t('Privasi riwayat')}>
         <label className="flex items-center gap-2">
           <input type="checkbox" checked={view.saveImages} onChange={(e) => save({ saveImages: e.target.checked })} />
-          Simpan thumbnail gambar di riwayat
+          {t('Simpan thumbnail gambar di riwayat')}
         </label>
       </Field>
     </div>
@@ -332,14 +339,14 @@ function PresetsField({ view, save }: FieldProps) {
   const commit = (next = presets) => save({ presets: next.filter((p) => p.label.trim() && p.prompt.trim()) })
 
   return (
-    <Field label="Preset prompt" hint="Muncul sebagai chip di toolbar capture. Preset dengan label atau prompt kosong tidak disimpan.">
+    <Field label={t('Preset prompt')} hint={t('Muncul sebagai chip di toolbar capture. Preset dengan label atau prompt kosong tidak disimpan.')}>
       {presets.map((p, i) => (
         <div key={i} className="flex gap-2">
-          <input aria-label="Label preset" className={`${input} max-w-32`} value={p.label} onChange={(e) => edit(i, { label: e.target.value })} onBlur={() => commit()} />
-          <input aria-label="Prompt preset" className={input} value={p.prompt} onChange={(e) => edit(i, { prompt: e.target.value })} onBlur={() => commit()} />
+          <input aria-label={t('Label preset')} className={`${input} max-w-32`} value={p.label} onChange={(e) => edit(i, { label: e.target.value })} onBlur={() => commit()} />
+          <input aria-label={t('Prompt preset')} className={input} value={p.prompt} onChange={(e) => edit(i, { prompt: e.target.value })} onBlur={() => commit()} />
           <button
             className={secondary}
-            aria-label={`Hapus preset ${p.label}`}
+            aria-label={t('Hapus preset {0}', p.label)}
             onClick={() => {
               const next = presets.filter((_, j) => j !== i)
               setPresets(next)
@@ -350,7 +357,7 @@ function PresetsField({ view, save }: FieldProps) {
           </button>
         </div>
       ))}
-      {presets.length < 12 && <button className={secondary} onClick={() => setPresets([...presets, { label: '', prompt: '' }])}>+ Tambah preset</button>}
+      {presets.length < 12 && <button className={secondary} onClick={() => setPresets([...presets, { label: '', prompt: '' }])}>{t('+ Tambah preset')}</button>}
     </Field>
   )
 }
@@ -362,10 +369,10 @@ function HistoryTab() {
 
   const refresh = () => window.api.listHistory(query).then(setItems)
   useEffect(() => {
-    const t = setTimeout(refresh, 200)
+    const timer = setTimeout(refresh, 200)
     window.addEventListener('focus', refresh)
     return () => {
-      clearTimeout(t)
+      clearTimeout(timer)
       window.removeEventListener('focus', refresh)
     }
   }, [query])
@@ -373,20 +380,20 @@ function HistoryTab() {
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
-        <input type="search" aria-label="Cari riwayat" placeholder="Cari prompt atau jawaban…" className={input} value={query} onChange={(e) => setQuery(e.target.value)} />
+        <input type="search" aria-label={t('Cari riwayat')} placeholder={t('Cari prompt atau jawaban…')} className={input} value={query} onChange={(e) => setQuery(e.target.value)} />
         <button
           className={secondary}
           disabled={!items.length}
           onClick={async () => {
-            if (!confirm('Hapus semua riwayat? Tidak bisa dibatalkan.')) return
+            if (!confirm(t('Hapus semua riwayat? Tidak bisa dibatalkan.'))) return
             await window.api.clearHistory()
             refresh()
           }}
         >
-          Hapus semua
+          {t('Hapus semua')}
         </button>
       </div>
-      {!items.length && <p className="text-neutral-500">{query ? 'Tidak ada hasil.' : 'Belum ada riwayat.'}</p>}
+      {!items.length && <p className="text-neutral-500">{query ? t('Tidak ada hasil.') : t('Belum ada riwayat.')}</p>}
       <ul className="space-y-2">
         {items.map((h) => (
           <li key={h.id} className="rounded border border-neutral-200 p-2 dark:border-neutral-800">
@@ -394,11 +401,11 @@ function HistoryTab() {
               {h.thumb && <img src={h.thumb} alt="" className="h-14 w-20 shrink-0 rounded object-cover" />}
               <button className="min-w-0 flex-1 text-left" aria-expanded={open === h.id} onClick={() => setOpen(open === h.id ? null : h.id)}>
                 <p className="truncate font-medium">{h.turns[0]?.text}</p>
-                <p className="text-xs text-neutral-500">{new Date(h.createdAt).toLocaleString()} · {h.model} · {Math.ceil(h.turns.length / 2)} pertanyaan</p>
+                <p className="text-xs text-neutral-500">{new Date(h.createdAt).toLocaleString()} · {h.model} · {t('{0} pertanyaan', Math.ceil(h.turns.length / 2))}</p>
               </button>
               <button
                 className={secondary}
-                aria-label="Hapus item"
+                aria-label={t('Hapus item')}
                 onClick={async () => {
                   await window.api.deleteHistory(h.id)
                   refresh()
@@ -423,14 +430,14 @@ function HistoryTab() {
   )
 }
 
-function Totals({ label, t }: { label: string; t: UsageTotals }) {
-  const priced = t.requests > t.unpriced
+function Totals({ label, totals }: { label: string; totals: UsageTotals }) {
+  const priced = totals.requests > totals.unpriced
   return (
     <div className="rounded border border-neutral-200 p-3 dark:border-neutral-800">
       <p className="text-xs text-neutral-500">{label}</p>
-      <p className="text-lg font-semibold">{t.tokens.toLocaleString()} token</p>
-      <p>{priced ? `$${t.cost.toFixed(4)}` : '$ –'} · {t.requests} permintaan</p>
-      {t.unpriced > 0 && <p className="text-xs text-neutral-500">{t.unpriced} permintaan tanpa harga (model belum ada di daftar harga)</p>}
+      <p className="text-lg font-semibold">{t('{0} token', totals.tokens.toLocaleString())}</p>
+      <p>{priced ? `$${totals.cost.toFixed(4)}` : '$ –'} · {t('{0} permintaan', totals.requests)}</p>
+      {totals.unpriced > 0 && <p className="text-xs text-neutral-500">{t('{0} permintaan tanpa harga (model belum ada di daftar harga)', totals.unpriced)}</p>}
     </div>
   )
 }
@@ -448,18 +455,18 @@ function UsageTab({ view, save }: FieldProps) {
     <div className="space-y-6">
       {usage && (
         <div className="grid grid-cols-2 gap-3">
-          <Totals label="Hari ini" t={usage.today} />
-          <Totals label="Bulan ini" t={usage.month} />
+          <Totals label={t('Hari ini')} totals={usage.today} />
+          <Totals label={t('Bulan ini')} totals={usage.month} />
         </div>
       )}
-      <p className="text-xs text-neutral-500">Dihitung dari data usage yang dikirim API. Menghapus riwayat tidak menghapus catatan ini.</p>
-      <NumberField view={view} save={save} field="dailyTokenLimit" label="Batas token harian" hint="0 = tanpa batas. Send dinonaktifkan kalau tercapai." />
-      <NumberField view={view} save={save} field="dailyUsdLimit" label="Batas biaya harian (USD)" step={0.01} hint="0 = tanpa batas. Hanya menghitung model yang ada di daftar harga." />
+      <p className="text-xs text-neutral-500">{t('Dihitung dari data usage yang dikirim API. Menghapus riwayat tidak menghapus catatan ini.')}</p>
+      <NumberField view={view} save={save} field="dailyTokenLimit" label={t('Batas token harian')} hint={t('0 = tanpa batas. Send dinonaktifkan kalau tercapai.')} />
+      <NumberField view={view} save={save} field="dailyUsdLimit" label={t('Batas biaya harian (USD)')} step={0.01} hint={t('0 = tanpa batas. Hanya menghitung model yang ada di daftar harga.')} />
     </div>
   )
 }
 
-const TABS = { history: 'Riwayat', usage: 'Pemakaian', settings: 'Settings' } as const
+const TABS: Record<'history' | 'usage' | 'settings', Key> = { history: 'Riwayat', usage: 'Pemakaian', settings: 'Settings' }
 type Tab = keyof typeof TABS
 const toTab = (s: string): Tab => (s in TABS ? (s as Tab) : 'history')
 
@@ -478,6 +485,7 @@ function App() {
   }
 
   if (!view) return null
+  setLang(view.language) // before the children render, so they all read it
   return (
     <main
       className="min-h-screen bg-white bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--accent)_18%,transparent),transparent_60%)] bg-no-repeat p-6 text-sm text-neutral-900 dark:bg-neutral-900 dark:text-neutral-100"
@@ -489,15 +497,15 @@ function App() {
         ) : (
           <>
             <nav role="tablist" className="mb-6 flex gap-1 border-b border-neutral-200 dark:border-neutral-800">
-              {(Object.keys(TABS) as Tab[]).map((t) => (
+              {(Object.keys(TABS) as Tab[]).map((k) => (
                 <button
-                  key={t}
+                  key={k}
                   role="tab"
-                  aria-selected={tab === t}
-                  onClick={() => setTab(t)}
-                  className={`-mb-px border-b-2 px-3 py-2 ${tab === t ? 'border-(--accent) font-medium' : 'border-transparent text-neutral-500'}`}
+                  aria-selected={tab === k}
+                  onClick={() => setTab(k)}
+                  className={`-mb-px border-b-2 px-3 py-2 ${tab === k ? 'border-(--accent) font-medium' : 'border-transparent text-neutral-500'}`}
                 >
-                  {TABS[t]}
+                  {t(TABS[k])}
                 </button>
               ))}
             </nav>

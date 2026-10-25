@@ -1,5 +1,6 @@
 import { Menu, nativeImage, Tray } from 'electron'
 import appIcon from '../../resources/icon.png?asset'
+import { t } from '../i18n'
 
 type Handlers = { capture: () => void; history: () => void; dashboard: () => void; togglePause: () => void; quit: () => void }
 
@@ -28,13 +29,13 @@ export function createTray(h: Handlers, isPaused: () => boolean): { tray: Tray; 
   const refresh = (): void =>
     tray.setContextMenu(
       Menu.buildFromTemplate([
-        { label: 'Capture sekarang', click: h.capture },
-        { label: 'Pause hotkey', type: 'checkbox', checked: isPaused(), click: h.togglePause },
+        { label: t('Capture sekarang'), click: h.capture },
+        { label: t('Pause hotkey'), type: 'checkbox', checked: isPaused(), click: h.togglePause },
         { type: 'separator' },
-        { label: 'Riwayat', click: h.history },
-        { label: 'Settings', click: h.dashboard },
+        { label: t('Riwayat'), click: h.history },
+        { label: t('Settings'), click: h.dashboard },
         { type: 'separator' },
-        { label: 'Quit', click: h.quit }
+        { label: t('Quit'), click: h.quit }
       ])
     )
   refresh()

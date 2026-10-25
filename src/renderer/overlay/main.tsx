@@ -4,6 +4,7 @@ import { estimateImageTokens, fitLongest, LARGE_IMAGE_TOKENS, type OcrLine, type
 import { CopyButton } from '../panel/CopyButton'
 import { dragRect, type DragMode } from './drag'
 import { scanCodes, toUrl } from './scan'
+import { setLang, t } from '../../i18n'
 
 // The answer sidebar (markdown, KaTeX, highlight.js) is only needed after Send; keep it out of the capture's startup.
 const Panel = lazy(() => import('../panel/Panel').then((m) => ({ default: m.Panel })))
@@ -59,14 +60,17 @@ function Overlay() {
   const drag = useRef<{ mode: DragMode; start: { x: number; y: number }; orig: Rect | null } | null>(null)
 
   useEffect(() => {
-    window.api.initOverlay().then(setInit)
+    window.api.initOverlay().then((i) => {
+      if (i) setLang(i.language)
+      setInit(i)
+    })
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') window.api.cancel()
       // Cmd/Ctrl+C on text selected in the capture (the question box handles its own copy).
       const picked = window.getSelection()?.toString().trim()
       if ((e.metaKey || e.ctrlKey) && e.key === 'c' && picked && !(document.activeElement instanceof HTMLInputElement)) {
         e.preventDefault()
-        navigator.clipboard.writeText(picked).then(() => setOcrMsg('Teks tersalin ✓'))
+        navigator.clipboard.writeText(picked).then(() => setOcrMsg(t('Teks tersalin ✓')))
       }
     }
     window.addEventListener('keydown', onKey)
@@ -80,8 +84,8 @@ function Overlay() {
     setCodes([])
     if (phase !== 'confirming' || !rect || !img.current) return
     let stale = false
-    const t = setTimeout(() => scanCodes(img.current!, rect, scale).then((c) => !stale && setCodes(c)).catch(() => {}), 250)
-    return () => { stale = true; clearTimeout(t) }
+    const timer = setTimeout(() => scanCodes(img.current!, rect, scale).then((c) => !stale && setCodes(c)).catch(() => {}), 250)
+    return () => { stale = true; clearTimeout(timer) }
   }, [phase, rect, imageWidth])
 
   // Local OCR once the box stops changing: makes the text selectable and feeds copy / Google search.
@@ -91,14 +95,14 @@ function Overlay() {
     window.getSelection()?.removeAllRanges()
     if (phase !== 'confirming' || !rect) return
     let stale = false
-    const t = setTimeout(async () => {
+    const timer = setTimeout(async () => {
       const res = await window.api.readText(rect)
       if (stale) return
       if ('error' in res) return setOcrMsg(res.error)
       setLines(res.lines)
-      if (!res.lines.length) setOcrMsg('Tidak ada teks terdeteksi.')
+      if (!res.lines.length) setOcrMsg(t('Tidak ada teks terdeteksi.'))
     }, 250)
-    return () => { stale = true; clearTimeout(t) }
+    return () => { stale = true; clearTimeout(timer) }
   }, [phase, rect])
 
   const startDrag = (mode: DragMode) => (e: MouseEvent) => {
@@ -127,7 +131,7 @@ function Overlay() {
   const pickedText = () => window.getSelection()?.toString().trim() || (lines ?? []).map((l) => l.text).join('\n')
   const copyText = async () => {
     await navigator.clipboard.writeText(pickedText())
-    setOcrMsg('Teks tersalin ✓')
+    setOcrMsg(t('Teks tersalin ✓'))
     setTimeout(() => window.api.cancel(), 700)
   }
   const searchText = () => {
@@ -208,7 +212,7 @@ function Overlay() {
       {init && <div className="mist-glow absolute inset-0" />}
       {init && !rect && (
         <p className="pointer-events-none absolute top-6 left-1/2 -translate-x-1/2 rounded-full border border-white/10 bg-neutral-900/80 px-4 py-1.5 text-xs text-neutral-300 shadow-lg backdrop-blur [animation:mist-in_.3s_ease-out]">
-          Seret untuk memilih area · <kbd className="font-mono">Esc</kbd> untuk batal
+          {t('Seret untuk memilih area ·')} <kbd className="font-mono">Esc</kbd> {t('untuk batal')}
         </p>
       )}
       {rect && init && phase !== 'selecting' && (
@@ -223,34 +227,34 @@ function Overlay() {
             <div className="flex items-center gap-2 rounded-xl bg-white/5 py-1 pr-1 pl-3 ring-(--accent) focus-within:ring-2">
               <input
                 autoFocus
-                aria-label="Pertanyaan"
+                aria-label={t('Pertanyaan')}
                 className="min-w-0 flex-1 bg-transparent py-1.5 outline-none placeholder:text-neutral-500"
-                placeholder="Tanya sesuatu tentang area ini… (kosong = jelaskan)"
+                placeholder={t('Tanya sesuatu tentang area ini… (kosong = jelaskan)')}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
               />
               <button
                 type="submit"
-                aria-label="Kirim"
-                title="Kirim (Enter)"
+                aria-label={t('Kirim')}
+                title={t('Kirim (Enter)')}
                 disabled={phase !== 'confirming' || !!init.limit}
                 className="grid h-8 w-8 place-items-center rounded-lg bg-(--accent) text-white shadow-[0_0_12px_-2px_var(--accent)] transition hover:brightness-110 disabled:opacity-40"
               >
                 <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden><path d="M10 3.5a.75.75 0 0 1 .53.22l5 5a.75.75 0 1 1-1.06 1.06l-3.72-3.72v9.19a.75.75 0 0 1-1.5 0V6.06L5.53 9.78a.75.75 0 0 1-1.06-1.06l5-5A.75.75 0 0 1 10 3.5Z" /></svg>
               </button>
-              <button type="button" aria-label="Batal" title="Batal (Esc)" onClick={() => window.api.cancel()} className="grid h-8 w-8 place-items-center rounded-lg text-neutral-400 transition hover:bg-white/10 hover:text-white">
+              <button type="button" aria-label={t('Batal')} title={t('Batal (Esc)')} onClick={() => window.api.cancel()} className="grid h-8 w-8 place-items-center rounded-lg text-neutral-400 transition hover:bg-white/10 hover:text-white">
                 ✕
               </button>
             </div>
           )}
           <div className="flex items-center gap-1.5">
-            <button type="button" disabled={!lines?.length} onClick={copyText} className={`${chip} disabled:opacity-50`}>📋 Salin teks</button>
-            <button type="button" disabled={!lines?.length} onClick={searchText} className={`${chip} disabled:opacity-50`}>🔍 Cari di Google</button>
+            <button type="button" disabled={!lines?.length} onClick={copyText} className={`${chip} disabled:opacity-50`}>{t('📋 Salin teks')}</button>
+            <button type="button" disabled={!lines?.length} onClick={searchText} className={`${chip} disabled:opacity-50`}>{t('🔍 Cari di Google')}</button>
             <span role="status" className="ml-1 text-xs text-neutral-400">
-              {ocrMsg || (lines ? 'Blok teks di dalam kotak lalu ⌘/Ctrl+C' : <span className="shimmer">Membaca teks…</span>)}
+              {ocrMsg || (lines ? t('Blok teks di dalam kotak lalu ⌘/Ctrl+C') : <span className="shimmer">{t('Membaca teks…')}</span>)}
             </span>
             {!init.ai && (
-              <button type="button" aria-label="Batal" title="Batal (Esc)" onClick={() => window.api.cancel()} className="ml-auto grid h-7 w-7 place-items-center rounded-lg text-neutral-400 transition hover:bg-white/10 hover:text-white">
+              <button type="button" aria-label={t('Batal')} title={t('Batal (Esc)')} onClick={() => window.api.cancel()} className="ml-auto grid h-7 w-7 place-items-center rounded-lg text-neutral-400 transition hover:bg-white/10 hover:text-white">
                 ✕
               </button>
             )}
@@ -263,13 +267,13 @@ function Overlay() {
                   <button
                     key={code}
                     type="button"
-                    title={`Buka di browser: ${url}`}
+                    title={t('Buka di browser: {0}', url)}
                     onClick={() => { window.open(url); window.api.cancel() }}
                     className="flex w-full items-center gap-2 rounded-xl border border-(--accent)/50 bg-(--accent)/15 px-3 py-2 text-left transition hover:bg-(--accent)/25"
                   >
                     <span aria-hidden>🔗</span>
                     <span className="min-w-0 flex-1 truncate">{url.replace(/^https?:\/\//, '')}</span>
-                    <span className="text-xs text-neutral-300">Buka ↗</span>
+                    <span className="text-xs text-neutral-300">{t('Buka ↗')}</span>
                   </button>
                 ) : (
                   <div key={code} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
@@ -297,15 +301,15 @@ function Overlay() {
                   onClick={() => setSmart(!smart)}
                   className="ml-auto flex items-center gap-2 text-xs text-neutral-300"
                 >
-                  Mode pintar
+                  {t('Mode pintar')}
                   <span className={`relative h-4 w-7 rounded-full transition ${smart ? 'bg-(--accent)' : 'bg-white/15'}`}>
                     <span className={`absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all ${smart ? 'left-3.5' : 'left-0.5'}`} />
                   </span>
                 </button>
               </div>
               <p className="text-[11px] text-neutral-500">
-                {smart ? init.smartModel : init.model} · ~{tokens.toLocaleString()} token gambar{init.provider !== 'anthropic' && ' (perkiraan)'}
-                {tokens >= LARGE_IMAGE_TOKENS && <span className="text-amber-400"> · Kotak besar, perkecil untuk hemat token</span>}
+                {smart ? init.smartModel : init.model} · {t('~{0} token gambar', tokens.toLocaleString())}{init.provider !== 'anthropic' && t(' (perkiraan)')}
+                {tokens >= LARGE_IMAGE_TOKENS && <span className="text-amber-400">{t(' · Kotak besar, perkecil untuk hemat token')}</span>}
               </p>
             </>
           )}

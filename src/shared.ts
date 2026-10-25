@@ -35,7 +35,7 @@ export type Settings = {
 export type SettingsView = Settings & { keys: Record<Provider, string | null>; insecureKeys: boolean; platform: string }
 export type TestResult = { ok: true; models: string[] } | { ok: false; error: string }
 
-export type OverlayInit = { image: string; provider: Provider; model: string; smartModel: string; presets: Preset[]; limit: string | null; accent: string; ai: boolean }
+export type OverlayInit = { image: string; provider: Provider; model: string; smartModel: string; presets: Preset[]; limit: string | null; accent: string; ai: boolean; language: Settings['language'] }
 export type HistoryItem = { id: number; createdAt: number; provider: string; model: string; turns: Turn[]; thumb: string | null }
 /** A line of text found by OCR; the box is in fractions (0–1) of the selection. */
 export type OcrLine = Rect & { text: string }

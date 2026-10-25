@@ -13,6 +13,7 @@ import { addUsage, clearHistory, deleteHistory, insertHistory, listHistory, upda
 import { cleanPatch } from './store/validate'
 import { getKey, getSettings, saveSettings, setKey, settingsView } from './store/settings'
 import { createTray } from './tray'
+import { setLang, t } from '../i18n'
 import { toCropRect } from './rect'
 import { trimTurns } from './turns'
 import appIcon from '../../resources/icon.png?asset'
@@ -101,10 +102,10 @@ function togglePause(): void {
 function limitReason(s: Settings): string | null {
   const { today } = usageSummary()
   if (s.dailyTokenLimit && today.tokens >= s.dailyTokenLimit) {
-    return `Batas token harian tercapai (${today.tokens.toLocaleString()} / ${s.dailyTokenLimit.toLocaleString()}). Ubah di Settings.`
+    return t('Batas token harian tercapai ({0} / {1}). Ubah di Settings.', today.tokens.toLocaleString(), s.dailyTokenLimit.toLocaleString())
   }
   if (s.dailyUsdLimit && today.cost >= s.dailyUsdLimit) {
-    return `Batas biaya harian tercapai ($${today.cost.toFixed(4)} / $${s.dailyUsdLimit}). Ubah di Settings.`
+    return t('Batas biaya harian tercapai (${0} / ${1}). Ubah di Settings.', today.cost.toFixed(4), s.dailyUsdLimit)
   }
   return null
 }
@@ -114,9 +115,9 @@ function limitReason(s: Settings): string | null {
 async function askScreenPermission(): Promise<void> {
   const { response } = await dialog.showMessageBox({
     type: 'warning',
-    message: 'Izin Screen Recording dibutuhkan',
-    detail: 'Buka System Settings → Privacy & Security → Screen Recording, aktifkan aplikasi ini, lalu restart app.',
-    buttons: ['Buka System Settings', 'Nanti']
+    message: t('Izin Screen Recording dibutuhkan'),
+    detail: t('Buka System Settings → Privacy & Security → Screen Recording, aktifkan aplikasi ini, lalu restart app.'),
+    buttons: [t('Buka System Settings'), t('Nanti')]
   })
   if (response === 0) shell.openExternal(SCREEN_SETTINGS_URL)
 }
@@ -157,7 +158,7 @@ async function startCapture(): Promise<void> {
   } catch (err) {
     win.close()
     if (isMac) return askScreenPermission()
-    return dialog.showErrorBox('Capture gagal', String(err))
+    return dialog.showErrorBox(t('Capture gagal'), String(err))
   }
   panel?.close() // a new capture replaces the old answer
 }
@@ -211,7 +212,7 @@ async function run(c: Conversation): Promise<void> {
   const fail = (error: string): void => { Object.assign(c, { status: 'error', error }); push() }
   Object.assign(c, { model, error: '', truncated: false })
 
-  if (!key) return fail('API key belum diisi. Buka Settings dari ikon tray.')
+  if (!key) return fail(t('API key belum diisi. Buka Settings dari ikon tray.'))
   const limit = limitReason(s)
   if (limit) return fail(limit)
 
@@ -259,7 +260,8 @@ ipcMain.handle('overlay:init', async (): Promise<OverlayInit | null> => {
     presets: s.presets,
     limit: limitReason(s),
     accent: s.accents[s.provider],
-    ai: s.aiEnabled
+    ai: s.aiEnabled,
+    language: s.language
   }
 })
 ipcMain.on('overlay:cancel', () => overlay?.close())
@@ -275,7 +277,7 @@ ipcMain.on('overlay:send', (e, rect, prompt, smart) => {
     provider: s.provider,
     smart: smart === true,
     historyId: null,
-    turns: [{ role: 'user', text: String(prompt ?? '').trim().slice(0, 2000) || 'Jelaskan isi gambar ini.' }],
+    turns: [{ role: 'user', text: String(prompt ?? '').trim().slice(0, 2000) || t('Jelaskan isi gambar ini.') }],
     status: 'idle', error: '', model: '', truncated: false
   }
   run(conv)
@@ -283,13 +285,13 @@ ipcMain.on('overlay:send', (e, rect, prompt, smart) => {
 
 // Local OCR of the selection (no AI, no tokens) for selectable text, "Salin teks" and "Cari di Google".
 ipcMain.handle('overlay:ocr', async (e, rect): Promise<{ lines: OcrLine[] } | { error: string }> => {
-  if (!shot || e.sender !== overlay?.webContents) return { error: 'Capture sudah ditutup.' }
+  if (!shot || e.sender !== overlay?.webContents) return { error: t('Capture sudah ditutup.') }
   const crop = toCropRect(rect, shot.display.bounds, shot.image.getSize())
-  if (!crop) return { error: 'Area terlalu kecil.' }
+  if (!crop) return { error: t('Area terlalu kecil.') }
   try {
     return { lines: await ocr(shot.image.crop(crop), shot.display.scaleFactor) }
   } catch (err) {
-    return { error: `Gagal membaca teks: ${String(err)}` }
+    return { error: t('Gagal membaca teks: {0}', String(err)) }
   }
 })
 
@@ -314,16 +316,20 @@ ipcMain.handle('settings:save', (_e, input) => {
   const old = getSettings().hotkey
   if (patch.hotkey && patch.hotkey !== old && !registerHotkey(patch.hotkey)) {
     registerHotkey(old)
-    return { error: `${patch.hotkey} tidak bisa dipakai (bentrok dengan aplikasi lain atau tidak valid).` }
+    return { error: t('{0} tidak bisa dipakai (bentrok dengan aplikasi lain atau tidak valid).', patch.hotkey) }
   }
   saveSettings(patch)
+  if (patch.language) {
+    setLang(patch.language)
+    tray?.refresh()
+  }
   return settingsView()
 })
 ipcMain.handle('key:test', async (_e, provider: unknown, rawKey: unknown): Promise<TestResult> => {
-  if (!isProvider(provider)) return { ok: false, error: 'Provider tidak dikenal.' }
+  if (!isProvider(provider)) return { ok: false, error: t('Provider tidak dikenal.') }
   const typed = typeof rawKey === 'string' ? rawKey.trim() : ''
   const key = typed || getKey(provider)
-  if (!key) return { ok: false, error: 'Masukkan API key dulu.' }
+  if (!key) return { ok: false, error: t('Masukkan API key dulu.') }
   try {
     const models = await providers[provider].listModels(key)
     if (typed) setKey(provider, typed) // only store a key that works
@@ -354,6 +360,7 @@ if (!app.requestSingleInstanceLock()) {
 } else {
   app.on('second-instance', () => showDashboard())
   app.whenReady().then(() => {
+    setLang(getSettings().language)
     tray = createTray(
       {
         capture: () => void startCapture(),
@@ -366,9 +373,9 @@ if (!app.requestSingleInstanceLock()) {
     )
     warmOcr().catch(() => {}) // ready before the first capture; errors surface when OCR is used
     const s = getSettings()
-    if (!registerHotkey(s.hotkey)) dialog.showErrorBox('Hotkey bentrok', `${s.hotkey} sudah dipakai aplikasi lain. Ganti di Settings.`)
+    if (!registerHotkey(s.hotkey)) dialog.showErrorBox(t('Hotkey bentrok'), t('{0} sudah dipakai aplikasi lain. Ganti di Settings.', s.hotkey))
     if (!s.onboarded) showDashboard()
-    else new Notification({ title: 'Clumsee aktif', body: `Tekan ${s.hotkey} untuk capture.` }).show()
+    else new Notification({ title: t('Clumsee aktif'), body: t('Tekan {0} untuk capture.', s.hotkey) }).show()
   })
   app.on('activate', () => showDashboard()) // macOS: clicking the Dock icon
   app.on('before-quit', () => { quitting = true })

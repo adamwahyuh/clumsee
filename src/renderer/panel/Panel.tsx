@@ -3,6 +3,7 @@ import type { AnswerView } from '../../shared'
 import './markdown.css'
 import { Answer } from './Answer'
 import { CopyButton } from './CopyButton'
+import { t } from '../../i18n'
 
 const small = 'rounded bg-white/10 px-2 py-0.5 text-xs hover:bg-white/20'
 
@@ -35,7 +36,7 @@ export function Panel() {
         <div className="mist-glow absolute inset-0 rounded-2xl opacity-60" />
         <header className="flex items-center justify-between px-4 pt-3 pb-1 text-xs text-neutral-400 [-webkit-app-region:drag]">
           <span>Clumsee</span>
-          <button aria-label="Tutup panel" title="Tutup (Esc)" onClick={() => window.close()} className="rounded px-1.5 hover:bg-white/10 [-webkit-app-region:no-drag]">✕</button>
+          <button aria-label={t('Tutup panel')} title={t('Tutup (Esc)')} onClick={() => window.close()} className="rounded px-1.5 hover:bg-white/10 [-webkit-app-region:no-drag]">✕</button>
         </header>
         <div ref={scroller} className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
           {turns.map((t, i) =>
@@ -51,18 +52,18 @@ export function Panel() {
           {status === 'sending' && !last?.text && (
             <p role="status" className="flex items-center gap-2 text-neutral-400">
               <span className="thinking" aria-hidden><i /><i /><i /></span>
-              <span className="shimmer">Menunggu jawaban…</span>
+              <span className="shimmer">{t('Menunggu jawaban…')}</span>
             </p>
           )}
           {truncated && status === 'done' && (
-            <p className="text-xs text-amber-400">Jawaban terpotong karena batas max tokens. Naikkan di Settings bila perlu.</p>
+            <p className="text-xs text-amber-400">{t('Jawaban terpotong karena batas max tokens. Naikkan di Settings bila perlu.')}</p>
           )}
           {status === 'error' && (
             <div role="alert" className="space-y-2 rounded bg-red-950/70 px-3 py-2 text-red-200">
               <p>{error}</p>
               <div className="flex gap-2">
-                <button className={small} onClick={() => window.api.retry(false)}>Coba lagi</button>
-                {model !== smartModel && <button className={small} onClick={() => window.api.retry(true)}>Coba dengan mode pintar</button>}
+                <button className={small} onClick={() => window.api.retry(false)}>{t('Coba lagi')}</button>
+                {model !== smartModel && <button className={small} onClick={() => window.api.retry(true)}>{t('Coba dengan mode pintar')}</button>}
               </div>
             </div>
           )}
@@ -72,7 +73,7 @@ export function Panel() {
           <p className="flex items-center justify-between text-xs text-neutral-500">
             <span>{model}</span>
             {status === 'done' && model !== smartModel && (
-              <button className={small} onClick={() => window.api.retry(true)} title={smartModel}>Jawab ulang (mode pintar)</button>
+              <button className={small} onClick={() => window.api.retry(true)} title={smartModel}>{t('Jawab ulang (mode pintar)')}</button>
             )}
           </p>
           <form
@@ -85,15 +86,15 @@ export function Panel() {
             }}
           >
             <input
-              aria-label="Pertanyaan lanjutan"
+              aria-label={t('Pertanyaan lanjutan')}
               className="min-w-0 flex-1 rounded-lg bg-white/5 px-2 py-1.5 outline-none focus:ring-2 focus:ring-(--accent)"
-              placeholder="Tanya lanjutan…"
+              placeholder={t('Tanya lanjutan…')}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               disabled={status !== 'done'}
             />
             <button className="rounded-lg bg-(--accent) px-3 py-1.5 font-medium text-white hover:brightness-110 disabled:opacity-50" disabled={status !== 'done' || !question.trim()}>
-              Tanya
+              {t('Tanya')}
             </button>
           </form>
         </footer>
