@@ -29,7 +29,9 @@ const api = {
   getUsage: (): Promise<UsageSummary> => ipcRenderer.invoke('usage:get'),
   permissionStatus: (): Promise<string> => ipcRenderer.invoke('permission:status'),
   requestPermission: (): Promise<void> => ipcRenderer.invoke('permission:request'),
-  relaunch: (): void => ipcRenderer.send('app:relaunch')
+  relaunch: (): void => ipcRenderer.send('app:relaunch'),
+  checkUpdate: (): Promise<{ version: string; url: string; install?: boolean } | null | { error: string }> => ipcRenderer.invoke('update:check'),
+  openUpdate: (): Promise<{ error: string } | undefined> => ipcRenderer.invoke('update:open')
 }
 
 export type Api = typeof api

@@ -79,6 +79,13 @@ const en = {
   'Pilih area layar dan tanya AI vision.': 'Select a screen area and ask vision AI.',
   'Versi {0}': 'Version {0}',
   'Lisensi MIT': 'MIT License',
+  'Cek update': 'Check for updates',
+  'Mengecek…': 'Checking…',
+  'Sudah versi terbaru.': 'You are on the latest version.',
+  'Unduh {0}': 'Download {0}',
+  'Pasang file yang terunduh untuk memperbarui.': 'Install the downloaded file to update.',
+  'Update ke {0}': 'Update to {0}',
+  'Mengunduh… aplikasi akan restart sendiri.': 'Downloading… the app will restart by itself.',
   // panel
   'Tutup panel': 'Close panel',
   'Tutup (Esc)': 'Close (Esc)',

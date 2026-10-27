@@ -16,6 +16,8 @@ import { createTray } from './tray'
 import { setLang, t } from '../i18n'
 import { toCropRect } from './rect'
 import { trimTurns } from './turns'
+import { checkUpdate } from './update'
+import { autoUpdater } from 'electron-updater'
 import appIcon from '../../resources/icon.png?asset'
 
 const PANEL_WIDTH = 420
@@ -347,6 +349,33 @@ ipcMain.handle('permission:request', async () => {
   // A capture call makes macOS show its permission prompt and list the app in System Settings.
   await desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: 1, height: 1 } }).catch(() => {})
   shell.openExternal(SCREEN_SETTINGS_URL)
+})
+// Windows (NSIS) and the AppImage can replace themselves; unsigned macOS builds and the .deb get the installer download.
+const selfUpdate = app.isPackaged && (process.platform === 'win32' || !!process.env.APPIMAGE)
+autoUpdater.autoDownload = false
+// The renderer only gets to open the URL main found itself, never one it passes in.
+let updateUrl: string | null = null
+ipcMain.handle('update:check', async () => {
+  try {
+    if (selfUpdate) {
+      const r = await autoUpdater.checkForUpdates()
+      return r?.isUpdateAvailable ? { version: `v${r.updateInfo.version}`, url: '', install: true } : null
+    }
+    const u = await checkUpdate(app.getVersion(), process.platform, process.arch)
+    updateUrl = u?.url ?? null
+    return u
+  } catch (e) {
+    return { error: errorMessage(e) }
+  }
+})
+ipcMain.handle('update:open', async () => {
+  if (!selfUpdate) return void (updateUrl && shell.openExternal(updateUrl))
+  try {
+    await autoUpdater.downloadUpdate()
+    autoUpdater.quitAndInstall(true, true) // silent, then reopen: skip the NSIS wizard
+  } catch (e) {
+    return { error: errorMessage(e) }
+  }
 })
 ipcMain.on('app:relaunch', () => {
   app.relaunch()

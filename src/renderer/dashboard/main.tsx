@@ -469,6 +469,36 @@ function UsageTab({ view, save }: FieldProps) {
   )
 }
 
+function UpdateCheck() {
+  const [state, setState] = useState<'idle' | 'checking' | 'latest' | { version: string; install?: boolean } | { error: string }>('idle')
+  const [busy, setBusy] = useState(false)
+  const check = async () => {
+    setState('checking')
+    const r = await window.api.checkUpdate()
+    setState(r ?? 'latest')
+  }
+  const open = async () => {
+    setBusy(true)
+    const r = await window.api.openUpdate()
+    setBusy(false)
+    if (r) setState(r)
+  }
+  if (typeof state === 'object' && 'version' in state)
+    return (
+      <div className="space-y-1">
+        <button className={button} disabled={busy} onClick={open}>{t(state.install ? 'Update ke {0}' : 'Unduh {0}', state.version)}</button>
+        <p className="text-xs text-neutral-500">{t(state.install ? 'Mengunduh… aplikasi akan restart sendiri.' : 'Pasang file yang terunduh untuk memperbarui.')}</p>
+      </div>
+    )
+  return (
+    <div className="flex items-center gap-2">
+      <button className={secondary} disabled={state === 'checking'} onClick={check}>{state === 'checking' ? t('Mengecek…') : t('Cek update')}</button>
+      {state === 'latest' && <span className="text-xs text-neutral-500">{t('Sudah versi terbaru.')}</span>}
+      {typeof state === 'object' && 'error' in state && <span className="text-xs text-red-600">{state.error}</span>}
+    </div>
+  )
+}
+
 function AboutTab() {
   return (
     <div className="space-y-2">
@@ -476,6 +506,7 @@ function AboutTab() {
       <h2 className="text-lg font-semibold">Clumsee</h2>
       <p>{t('Pilih area layar dan tanya AI vision.')}</p>
       <p className="text-xs text-neutral-500">{t('Versi {0}', version.trim())}</p>
+      <UpdateCheck />
       <p className="text-xs text-neutral-500">
         © {new Date().getFullYear()} Adam Hariyadi ·{' '}
         <a className="text-(--accent) underline" href="https://github.com/adamwahyuh/clumsee/blob/main/LICENSE" target="_blank" rel="noreferrer">{t('Lisensi MIT')}</a>
